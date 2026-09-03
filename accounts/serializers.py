@@ -20,7 +20,43 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ["id", "username", "email", "role"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "role",
+            "full_name",
+            "phone",
+            "location",
+            "skills",
+            "experience",
+            "education",
+            "linkedin",
+            "github",
+            "resume",
+        ]
+        read_only_fields = [
+            "id",
+            "username",
+            "role",
+        ]
+
+
+class CandidateDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "full_name",
+            "phone",
+            "location",
+            "skills",
+            "experience",
+            "education",
+            "linkedin",
+            "github",
+        ]

@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <div class="auth-logo">
+                💼
+            </div>
+
+            <h1>Create account</h1>
+
+            <p>
+                Join JobPortal and discover your next opportunity.
+            </p>
+
+        </div>
+
+
+        <form id="signupForm" class="auth-form">
+
+            <!-- Username -->
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span>👤</span>
+
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+
+                </div>
+
+            </div>
+
+
+            <!-- Email -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span>📧</span>
+
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="role">Account Type</label>
+
+                <div class="input-wrapper">
+                    <span>💼</span>
+
+                    <select id="role" name="role" required>
+                        <option value="">Select account type</option>
+                        <option value="CANDIDATE">Candidate</option>
+                        <option value="EMPLOYER">Employer</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <!-- Password -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span>🔒</span>
+
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+
+                    <button type="button" class="password-toggle" id="passwordToggle">
+                        👁️
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Confirm Password -->
+
+            <div class="form-group">
+
+                <label for="confirmPassword">
+                    Confirm Password
+                </label>
+
+                <div class="input-wrapper">
+
+                    <span>🔐</span>
+
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                        placeholder="Confirm your password" required>
+
+                </div>
+
+            </div>
+
+
+            <!-- Message -->
+
+            <div id="signupMessage" class="auth-message">
+            </div>
+
+
+            <!-- Submit -->
+
+            <button type="submit" class="auth-submit">
+
+                Create Account
+
+                <span>→</span>
+
+            </button>
+
+        </form>
+
+
+        <div class="auth-divider">
+            <span>OR</span>
+        </div>
+
+
+        <p class="auth-footer">
+
+            Already have an account?
+
+            <a href="/login/">
+                Login
+            </a>
+
+        </p>
+
+    </div>
+
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const signupForm = document.getElementById("signupForm");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const passwordToggle = document.getElementById("passwordToggle");
+        const message = document.getElementById("signupMessage");
+
+        // Show / Hide Password
+        passwordToggle.addEventListener("click", function () {
+
+            if (password.type === "password") {
+                password.type = "text";
+                passwordToggle.textContent = "🙈";
+            } else {
+                password.type = "password";
+                passwordToggle.textContent = "👁️";
+            }
+
+        });
+
+
+        // Signup Form
+        signupForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const role = document.getElementById("role").value;
+            const passwordValue = password.value;
+            const confirmPasswordValue = confirmPassword.value;
+
+            message.style.display = "none";
+
+
+            // Password match check
+            if (passwordValue !== confirmPasswordValue) {
+
+                message.textContent = "Passwords do not match.";
+                message.style.display = "block";
+
+                return;
+            }
+
+
+            try {
+
+                const response = await fetch("/api/auth/signup/", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: passwordValue,
+                        role: role
+                    })
+
+                });
+
+
+                const data = await response.json();
+
+
+                if (response.ok) {
+
+                    message.textContent =
+                        "Account created successfully! Redirecting to login...";
+
+                    message.style.display = "block";
+
+                    message.style.color = "#16a34a";
+
+                    signupForm.reset();
+
+
+                    setTimeout(function () {
+
+                        window.location.href = "/login/";
+
+                    }, 1500);
+
+                } else {
+
+                    let errorMessage = "Unable to create account.";
+
+                    if (data.username) {
+                        errorMessage = data.username[0];
+                    } else if (data.email) {
+                        errorMessage = data.email[0];
+                    } else if (data.password) {
+                        errorMessage = data.password[0];
+                    } else if (data.detail) {
+                        errorMessage = data.detail;
+                    }
+
+                    message.textContent = errorMessage;
+                    message.style.display = "block";
+                    message.style.color = "#dc2626";
+                }
+
+            } catch (error) {
+
+                message.textContent =
+                    "Something went wrong. Please try again.";
+
+                message.style.display = "block";
+                message.style.color = "#dc2626";
+
+                console.error(error);
+
+            }
+
+        });
+
+    });
+</script>
+
+{% endblock %}

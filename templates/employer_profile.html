@@ -1,0 +1,415 @@
+{% extends "employer_base.html" %}
+
+{% block title %}Employer Profile | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- Header -->
+
+    <div class="applications-header">
+
+        <div>
+
+            <span class="applications-badge">
+                👤 EMPLOYER PROFILE
+            </span>
+
+            <h1>My Profile</h1>
+
+            <p>
+                Manage and view your employer account information.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Profile Card -->
+
+    <div
+        style="
+            max-width:850px;
+            margin:0 auto;
+        "
+    >
+
+        <div
+            class="application-card"
+            style="
+                width:100%;
+                box-sizing:border-box;
+            "
+        >
+
+            <!-- Profile Header -->
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    gap:20px;
+                    padding-bottom:25px;
+                    border-bottom:1px solid rgba(128,128,128,0.2);
+                "
+            >
+
+                <div
+                    style="
+                        width:75px;
+                        height:75px;
+                        border-radius:50%;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        font-size:34px;
+                        background:rgba(99,102,241,0.12);
+                    "
+                >
+                    🏢
+                </div>
+
+
+                <div>
+
+                    <h2
+                        id="profileUsername"
+                        style="margin:0 0 6px;"
+                    >
+                        Loading...
+                    </h2>
+
+                    <p
+                        style="
+                            margin:0;
+                            opacity:0.75;
+                        "
+                    >
+                        Employer Account
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Account Information -->
+
+            <div
+                style="
+                    margin-top:30px;
+                "
+            >
+
+                <h3>
+                    📋 Account Information
+                </h3>
+
+
+                <div
+                    class="application-info"
+                    style="
+                        margin-top:20px;
+                    "
+                >
+
+                    <!-- Username -->
+
+                    <div>
+
+                        <span>
+                            👤 Username
+                        </span>
+
+                        <strong id="username">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Email -->
+
+                    <div>
+
+                        <span>
+                            📧 Email
+                        </span>
+
+                        <strong id="email">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Role -->
+
+                    <div>
+
+                        <span>
+                            🏢 Account Type
+                        </span>
+
+                        <strong id="role">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Status -->
+
+                    <div>
+
+                        <span>
+                            🟢 Account Status
+                        </span>
+
+                        <strong>
+                            Active
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Account Actions -->
+
+            <div
+                style="
+                    margin-top:35px;
+                    padding:22px;
+                    border-radius:14px;
+                    background:rgba(99,102,241,0.06);
+                "
+            >
+
+                <h3>
+                    ⚙️ Account Actions
+                </h3>
+
+
+                <p
+                    style="
+                        opacity:0.75;
+                        margin-top:8px;
+                    "
+                >
+                    Manage your JobPortal employer account.
+                </p>
+
+
+                <div
+                    style="
+                        display:flex;
+                        gap:12px;
+                        flex-wrap:wrap;
+                        margin-top:20px;
+                    "
+                >
+
+                    <a
+                        href="/employer-dashboard/"
+                        class="publish-btn"
+                        style="
+                            text-decoration:none;
+                        "
+                    >
+                        ← Back to Dashboard
+                    </a>
+
+
+                    <button
+                        type="button"
+                        id="profileLogout"
+                        class="cancel-btn"
+                    >
+                        🚪 Logout
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        loadEmployerProfile();
+
+    }
+);
+
+
+async function loadEmployerProfile() {
+
+    const token =
+        localStorage.getItem("access_token");
+
+
+    if (!token) {
+
+        window.location.href = "/login/";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/auth/profile/",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            "Bearer " + token,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Employer profile:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load profile."
+            );
+
+        }
+
+
+        document.getElementById(
+            "profileUsername"
+        ).textContent =
+            data.username || "Employer";
+
+
+        document.getElementById(
+            "username"
+        ).textContent =
+            data.username || "Not available";
+
+
+        document.getElementById(
+            "email"
+        ).textContent =
+            data.email || "Not provided";
+
+
+        document.getElementById(
+            "role"
+        ).textContent =
+            data.role === "EMPLOYER"
+                ? "Employer"
+                : data.role || "Employer";
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Profile error:",
+            error
+        );
+
+
+        document.getElementById(
+            "profileUsername"
+        ).textContent =
+            "Unable to load";
+
+
+        document.getElementById(
+            "username"
+        ).textContent =
+            "Unable to load";
+
+
+        document.getElementById(
+            "email"
+        ).textContent =
+            "Unable to load";
+
+
+        document.getElementById(
+            "role"
+        ).textContent =
+            "Employer";
+
+    }
+
+}
+
+
+/*
+    Profile Logout
+*/
+
+document
+    .getElementById("profileLogout")
+    .addEventListener(
+        "click",
+        function () {
+
+            const confirmLogout =
+                confirm(
+                    "Are you sure you want to logout?"
+                );
+
+
+            if (!confirmLogout) {
+                return;
+            }
+
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            localStorage.removeItem(
+                "refresh_token"
+            );
+
+
+            window.location.href =
+                "/login/";
+
+        }
+    );
+
+</script>
+
+{% endblock %}

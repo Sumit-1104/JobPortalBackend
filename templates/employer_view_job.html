@@ -1,0 +1,646 @@
+{% extends "employer_base.html" %}
+
+{% block title %}View Job | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- Page Header -->
+    <div class="applications-header">
+
+        <div>
+            <span class="applications-badge">
+                💼 JOB DETAILS
+            </span>
+
+            <h1 id="pageTitle">
+                Job Details
+            </h1>
+
+            <p>
+                View and manage your posted job.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Loading -->
+    <div
+        id="jobLoading"
+        class="application-message"
+    >
+
+        <div class="empty-icon">
+            ⏳
+        </div>
+
+        <h2>
+            Loading Job...
+        </h2>
+
+        <p>
+            Please wait while we load the job details.
+        </p>
+
+    </div>
+
+
+    <!-- Error Message -->
+    <div
+        id="jobError"
+        class="application-message"
+        style="display:none;"
+    >
+
+        <div class="empty-icon">
+            ⚠️
+        </div>
+
+        <h2>
+            Unable to Load Job
+        </h2>
+
+        <p id="errorText">
+            Something went wrong.
+        </p>
+
+    </div>
+
+
+    <!-- Job Details -->
+    <div
+        id="jobDetails"
+        style="display:none;"
+    >
+
+        <div class="job-post-wrapper">
+
+            <div class="job-post-card">
+
+                <!-- Back -->
+                <a
+                    href="/employer-my-jobs/"
+                    class="back-link"
+                >
+                    ← Back to My Jobs
+                </a>
+
+
+                <!-- Job Header -->
+                <div class="job-post-header">
+
+                    <div class="job-post-icon">
+                        💼
+                    </div>
+
+                    <div>
+
+                        <h2 id="jobTitle">
+                            Job Title
+                        </h2>
+
+                        <p id="jobCompany">
+                            Company
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Job Information -->
+                <div class="application-info">
+
+                    <div>
+                        <span>📍 Location</span>
+
+                        <strong id="jobLocation">
+                            -
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>💰 Salary</span>
+
+                        <strong id="jobSalary">
+                            -
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>💼 Job Type</span>
+
+                        <strong id="jobType">
+                            -
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>📅 Posted</span>
+
+                        <strong id="jobDate">
+                            -
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- Description -->
+                <div style="margin-top:35px;">
+
+                    <h2>
+                        📝 Job Description
+                    </h2>
+
+                    <p
+                        id="jobDescription"
+                        style="
+                            margin-top:15px;
+                            line-height:1.8;
+                            white-space:pre-line;
+                        "
+                    ></p>
+
+                </div>
+
+
+                <!-- Requirements -->
+                <div style="margin-top:35px;">
+
+                    <h2>
+                        ✅ Requirements
+                    </h2>
+
+                    <p
+                        id="jobRequirements"
+                        style="
+                            margin-top:15px;
+                            line-height:1.8;
+                            white-space:pre-line;
+                        "
+                    ></p>
+
+                </div>
+
+
+                <!-- Applications -->
+                <div
+                    style="
+                        margin-top:35px;
+                        padding:25px;
+                        border-radius:16px;
+                        background:rgba(99,102,241,0.08);
+                    "
+                >
+
+                    <h2>
+                        👥 Applications
+                    </h2>
+
+                    <p
+                        style="
+                            margin-top:8px;
+                            margin-bottom:20px;
+                        "
+                    >
+                        Manage candidates who have applied for this job.
+                    </p>
+
+                    <a
+                        href="/employer-applications/"
+                        class="publish-btn"
+                        style="text-decoration:none;"
+                    >
+                        👥 View Applications →
+                    </a>
+
+                </div>
+
+
+                <!-- Actions -->
+                <div
+                    class="post-job-actions"
+                    style="margin-top:35px;"
+                >
+
+                    <a
+                        id="editJobButton"
+                        href="#"
+                        class="publish-btn"
+                        style="text-decoration:none;"
+                    >
+                        ✏️ Edit Job
+                    </a>
+
+
+                    <button
+                        type="button"
+                        id="deleteJobButton"
+                        class="cancel-btn"
+                    >
+                        🗑 Delete Job
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const token =
+            localStorage.getItem("access_token");
+
+
+        const loading =
+            document.getElementById(
+                "jobLoading"
+            );
+
+
+        const errorBox =
+            document.getElementById(
+                "jobError"
+            );
+
+
+        const errorText =
+            document.getElementById(
+                "errorText"
+            );
+
+
+        const jobDetails =
+            document.getElementById(
+                "jobDetails"
+            );
+
+
+        const pathParts =
+            window.location.pathname
+                .split("/")
+                .filter(Boolean);
+
+
+        const jobId =
+            pathParts[pathParts.length - 1];
+
+
+        /*
+            Login check
+        */
+
+        if (!token) {
+
+            loading.style.display =
+                "none";
+
+            errorBox.style.display =
+                "block";
+
+            errorText.textContent =
+                "Please login as an employer first.";
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        "/login/";
+
+                },
+                1000
+            );
+
+            return;
+        }
+
+
+        /*
+            Job ID check
+        */
+
+        if (!jobId) {
+
+            loading.style.display =
+                "none";
+
+            errorBox.style.display =
+                "block";
+
+            errorText.textContent =
+                "Invalid job ID.";
+
+            return;
+        }
+
+
+        /*
+            Get Job Details
+        */
+
+        fetch(
+            `/api/jobs/${jobId}/`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization":
+                        "Bearer " + token,
+
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        )
+
+        .then(
+            function (response) {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to load job."
+                    );
+
+                }
+
+                return response.json();
+
+            }
+        )
+
+        .then(
+            function (job) {
+
+                console.log(
+                    "Employer job:",
+                    job
+                );
+
+
+                /*
+                    Fill Job Details
+                */
+
+                document.getElementById(
+                    "pageTitle"
+                ).textContent =
+                    job.title;
+
+
+                document.getElementById(
+                    "jobTitle"
+                ).textContent =
+                    job.title;
+
+
+                document.getElementById(
+                    "jobCompany"
+                ).textContent =
+                    job.company;
+
+
+                document.getElementById(
+                    "jobLocation"
+                ).textContent =
+                    job.location;
+
+
+                document.getElementById(
+                    "jobSalary"
+                ).textContent =
+                    job.salary
+                        ? "₹ " + job.salary
+                        : "Not specified";
+
+
+                document.getElementById(
+                    "jobType"
+                ).textContent =
+                    formatJobType(
+                        job.job_type
+                    );
+
+
+                document.getElementById(
+                    "jobDescription"
+                ).textContent =
+                    job.description || "";
+
+
+                document.getElementById(
+                    "jobRequirements"
+                ).textContent =
+                    job.requirements || "";
+
+
+                /*
+                    Posted Date
+                */
+
+                if (job.created_at) {
+
+                    const date =
+                        new Date(
+                            job.created_at
+                        );
+
+                    document.getElementById(
+                        "jobDate"
+                    ).textContent =
+                        date.toLocaleDateString(
+                            "en-IN",
+                            {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric"
+                            }
+                        );
+
+                }
+
+
+                /*
+                    Edit Button
+                */
+
+                document.getElementById(
+                    "editJobButton"
+                ).href =
+                    `/employer-edit-job/${job.id}/`;
+
+
+                /*
+                    Show Page
+                */
+
+                loading.style.display =
+                    "none";
+
+                jobDetails.style.display =
+                    "block";
+
+            }
+        )
+
+        .catch(
+            function (error) {
+
+                console.error(
+                    "Load employer job error:",
+                    error
+                );
+
+                loading.style.display =
+                    "none";
+
+                errorBox.style.display =
+                    "block";
+
+                errorText.textContent =
+                    "Unable to load this job. Please try again.";
+
+            }
+        );
+
+
+        /*
+            Delete Job
+        */
+
+        document.getElementById(
+            "deleteJobButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+                const confirmDelete =
+                    confirm(
+                        "Are you sure you want to delete this job?"
+                    );
+
+
+                if (!confirmDelete) {
+                    return;
+                }
+
+
+                this.disabled =
+                    true;
+
+                this.textContent =
+                    "Deleting...";
+
+
+                fetch(
+                    `/api/jobs/${jobId}/`,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            "Authorization":
+                                "Bearer " + token
+                        }
+                    }
+                )
+
+                .then(
+                    function (response) {
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "Delete failed."
+                            );
+
+                        }
+
+                        alert(
+                            "Job deleted successfully."
+                        );
+
+
+                        window.location.href =
+                            "/employer-my-jobs/";
+
+                    }
+                )
+
+                .catch(
+                    function (error) {
+
+                        console.error(
+                            "Delete error:",
+                            error
+                        );
+
+
+                        alert(
+                            "Unable to delete the job."
+                        );
+
+
+                        const button =
+                            document.getElementById(
+                                "deleteJobButton"
+                            );
+
+
+                        button.disabled =
+                            false;
+
+
+                        button.textContent =
+                            "🗑 Delete Job";
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+            Format Job Type
+        */
+
+        function formatJobType(type) {
+
+            if (type === "FULL_TIME") {
+                return "Full-time";
+            }
+
+            if (type === "PART_TIME") {
+                return "Part-time";
+            }
+
+            if (type === "INTERNSHIP") {
+                return "Internship";
+            }
+
+            return type || "-";
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

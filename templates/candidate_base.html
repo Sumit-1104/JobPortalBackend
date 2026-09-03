@@ -1,0 +1,152 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}JobPortal{% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+
+<body>
+
+    <!-- Candidate Navbar -->
+
+    <nav class="navbar">
+
+        <div class="nav-container">
+
+            <!-- Logo -->
+
+            <a href="/" class="logo">
+                Job<span>Portal</span>
+            </a>
+
+
+            <!-- Navigation -->
+
+            <div class="nav-links">
+
+                <a href="/">
+                    Home
+                </a>
+
+                <a href="/jobs/">
+                    Find Jobs
+                </a>
+
+                <a href="/my-applications/">
+                    My Applications
+                </a>
+
+                <a href="/candidate-profile-view/">
+                    👤 My Profile
+                </a>
+
+
+                <!-- Logout -->
+
+                <button id="candidateLogout" class="nav-btn" type="button">
+                    Logout
+                </button>
+
+
+                <!-- Theme -->
+
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" type="button">
+                    🌙
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Main Content -->
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+
+                <h3>JobPortal</h3>
+
+                <p>
+                    Find your dream job and connect
+                    with the right opportunities.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <p>
+                    © 2026 JobPortal.
+                    All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <!-- Main JavaScript -->
+
+    <script src="{% static 'js/app.js' %}"></script>
+
+
+    <!-- Candidate Logout -->
+
+    <script>
+
+        const candidateLogout =
+            document.getElementById("candidateLogout");
+
+
+        if (candidateLogout) {
+
+            candidateLogout.addEventListener(
+                "click",
+                function () {
+
+                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("refresh_token");
+
+                    window.location.href = "/login/";
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+
+</html>

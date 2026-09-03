@@ -1,0 +1,305 @@
+{% extends "candidate_base.html" %}
+{% load static %}
+
+{% block title %}My Profile | JobPortal{% endblock %}
+
+{% block content %}
+
+<div class="candidate-profile-view-page">
+
+    <div class="candidate-profile-view-container">
+
+        <!-- Header -->
+        <div class="candidate-profile-view-header">
+
+            <div>
+                <span class="profile-view-badge">👤 MY PROFILE</span>
+
+                <h1 id="profileName">My Profile</h1>
+
+                <p>
+                    View your professional profile and keep your information
+                    up to date.
+                </p>
+            </div>
+
+            <div class="candidate-profile-view-avatar">
+                👤
+            </div>
+
+        </div>
+
+
+        <!-- Profile Card -->
+        <div class="candidate-profile-view-card">
+
+            <!-- Basic Information -->
+            <div class="profile-view-section">
+
+                <h2>👤 Basic Information</h2>
+
+                <div class="profile-view-grid">
+
+                    <div class="profile-view-item">
+                        <span>Full Name</span>
+                        <strong id="fullName">Not added</strong>
+                    </div>
+
+                    <div class="profile-view-item">
+                        <span>Phone Number</span>
+                        <strong id="phone">Not added</strong>
+                    </div>
+
+                    <div class="profile-view-item">
+                        <span>Location</span>
+                        <strong id="location">Not added</strong>
+                    </div>
+
+                    <div class="profile-view-item">
+                        <span>Email</span>
+                        <strong id="email">Not added</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Professional Information -->
+            <div class="profile-view-section">
+
+                <h2>💼 Professional Information</h2>
+
+                <div class="profile-view-full-item">
+
+                    <span>Skills</span>
+
+                    <p id="skills">
+                        No skills added yet.
+                    </p>
+
+                </div>
+
+
+                <div class="profile-view-full-item">
+
+                    <span>Experience</span>
+
+                    <p id="experience">
+                        No experience added yet.
+                    </p>
+
+                </div>
+
+
+                <div class="profile-view-full-item">
+
+                    <span>Education</span>
+
+                    <p id="education">
+                        No education added yet.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Professional Links -->
+            <div class="profile-view-section">
+
+                <h2>🔗 Professional Links</h2>
+
+                <div class="profile-view-grid">
+
+                    <div class="profile-view-item">
+
+                        <span>LinkedIn</span>
+
+                        <a id="linkedin" href="#" target="_blank" rel="noopener noreferrer">
+                            Not added
+                        </a>
+
+                    </div>
+
+
+                    <div class="profile-view-item">
+
+                        <span>GitHub</span>
+
+                        <a id="github" href="#" target="_blank" rel="noopener noreferrer">
+                            Not added
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Resume -->
+            <div class="profile-view-section">
+
+                <h2>📄 Resume</h2>
+
+                <div class="profile-view-item">
+
+                    <span>My Resume</span>
+
+                    <a id="resume" href="#" target="_blank" rel="noopener noreferrer">
+                        Resume not uploaded
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+            <div class="profile-view-actions">
+
+                <a href="/candidate-profile/" class="profile-edit-btn">
+                    ✏️ Edit Profile
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const token = localStorage.getItem("access_token");
+
+
+    async function loadProfile() {
+
+        if (!token) {
+            window.location.href = "/login/";
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "/api/auth/profile/",
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error("Unable to load profile.");
+            }
+
+
+            const profile = await response.json();
+
+
+            // Name
+            const name =
+                profile.full_name ||
+                profile.username ||
+                "My Profile";
+
+            document.getElementById("profileName").innerText =
+                name;
+
+
+            // Basic information
+            document.getElementById("fullName").innerText =
+                profile.full_name || "Not added";
+
+            document.getElementById("phone").innerText =
+                profile.phone || "Not added";
+
+            document.getElementById("location").innerText =
+                profile.location || "Not added";
+
+            document.getElementById("email").innerText =
+                profile.email || "Not added";
+
+
+            // Professional information
+            document.getElementById("skills").innerText =
+                profile.skills || "No skills added yet.";
+
+            document.getElementById("experience").innerText =
+                profile.experience || "No experience added yet.";
+
+            document.getElementById("education").innerText =
+                profile.education || "No education added yet.";
+
+
+            // LinkedIn
+            const linkedin =
+                document.getElementById("linkedin");
+
+            if (profile.linkedin) {
+
+                linkedin.href = profile.linkedin;
+                linkedin.innerText = profile.linkedin;
+
+            } else {
+
+                linkedin.removeAttribute("href");
+                linkedin.innerText = "Not added";
+
+            }
+
+
+            // GitHub
+            const github =
+                document.getElementById("github");
+
+            if (profile.github) {
+
+                github.href = profile.github;
+                github.innerText = profile.github;
+
+            } else {
+
+                github.removeAttribute("href");
+                github.innerText = "Not added";
+
+            }
+
+            // Resume
+            const resume =
+                document.getElementById("resume");
+
+            if (profile.resume) {
+                const resumePath = profile.resume.replace("/media/", "");
+
+                resume.href = "/resume-view/" + resumePath;
+                resume.innerText = "📄 View / Download Resume";
+            } else {
+                resume.removeAttribute("href");
+                resume.innerText = "Resume not uploaded";
+            }
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("profileName").innerText =
+                "Unable to load profile.";
+
+        }
+
+    }
+
+
+    loadProfile();
+
+</script>
+
+{% endblock %}

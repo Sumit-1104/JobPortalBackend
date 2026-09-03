@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Login | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <div class="auth-logo">💼</div>
+
+            <h1>Welcome back</h1>
+
+            <p>
+                Login to continue to your JobPortal account.
+            </p>
+        </div>
+
+
+        <form id="loginForm" class="auth-form">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+
+                <div class="input-wrapper">
+                    <span>👤</span>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        required
+                    >
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <div class="input-wrapper">
+                    <span>🔒</span>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        id="passwordToggle"
+                    >
+                        👁️
+                    </button>
+                </div>
+            </div>
+
+
+            <div id="loginMessage" class="auth-message"></div>
+
+
+            <button type="submit" class="auth-submit">
+                Login
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <div class="auth-divider">
+            <span>OR</span>
+        </div>
+
+
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="/signup/">Create an account</a>
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

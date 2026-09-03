@@ -1,0 +1,462 @@
+{% extends "candidate_base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="candidate-profile-page">
+
+    <div class="candidate-profile-container">
+
+        <!-- Header -->
+        <div class="candidate-profile-header">
+
+            <div>
+                <h1>Edit Your Profile</h1>
+                <p>
+                    Keep your professional information updated so employers
+                    can learn more about you.
+                </p>
+            </div>
+
+            <div class="candidate-profile-avatar">
+                👤
+            </div>
+
+        </div>
+
+
+        <!-- Profile Form -->
+        <div class="candidate-profile-form-card">
+
+            <form id="candidateProfileForm">
+
+                <!-- Basic Information -->
+                <div class="profile-section">
+
+                    <h2>👤 Basic Information</h2>
+
+                    <div class="profile-form-grid">
+
+                        <div class="form-group">
+                            <label for="full_name">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="text" id="phone" name="phone" placeholder="Enter your phone number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" placeholder="e.g. Indore, Madhya Pradesh">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Professional Information -->
+                <div class="profile-section">
+
+                    <h2>💼 Professional Information</h2>
+
+                    <div class="form-group">
+                        <label for="skills">Skills</label>
+
+                        <textarea id="skills" name="skills" rows="4"
+                            placeholder="e.g. Python, Django, SQL, REST API, Git, HTML, CSS"></textarea>
+
+                        <small>
+                            Add your technical and professional skills.
+                        </small>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="experience">Experience</label>
+
+                        <textarea id="experience" name="experience" rows="5"
+                            placeholder="Describe your internship, work experience or projects..."></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="education">Education</label>
+
+                        <textarea id="education" name="education" rows="4"
+                            placeholder="e.g. B.Tech Computer Science & Engineering - 2026"></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Professional Links -->
+                <div class="profile-section">
+
+                    <h2>🔗 Professional Links</h2>
+
+                    <div class="profile-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="linkedin">
+                                LinkedIn Profile
+                            </label>
+
+                            <input type="url" id="linkedin" name="linkedin"
+                                placeholder="https://linkedin.com/in/your-profile">
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="github">
+                                GitHub Profile
+                            </label>
+
+                            <input type="url" id="github" name="github" placeholder="https://github.com/your-username">
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resume">Resume</label>
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx">
+                            <small>Upload your latest resume (PDF, DOC or DOCX)</small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Message -->
+                <div id="profileMessage"></div>
+
+
+                <!-- Buttons -->
+                <div class="profile-form-actions">
+
+                    <a href="/candidate-profile-view/" class="profile-cancel-btn">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="profile-save-btn" id="saveProfileBtn">
+                        💾 Save Profile
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const token = localStorage.getItem("access_token");
+
+
+    // Load existing profile
+    async function loadProfile() {
+
+        if (!token) {
+            window.location.href = "/login/";
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "/api/auth/profile/",
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to load profile.");
+            }
+
+            const profile = await response.json();
+
+            document.getElementById("full_name").value =
+                profile.full_name || "";
+
+            document.getElementById("phone").value =
+                profile.phone || "";
+
+            document.getElementById("location").value =
+                profile.location || "";
+
+            document.getElementById("skills").value =
+                profile.skills || "";
+
+            document.getElementById("experience").value =
+                profile.experience || "";
+
+            document.getElementById("education").value =
+                profile.education || "";
+
+            document.getElementById("linkedin").value =
+                profile.linkedin || "";
+
+            document.getElementById("github").value =
+                profile.github || "";
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Unable to load your profile.",
+                "error"
+            );
+        }
+    }
+
+
+    // Save profile
+    document
+        .getElementById("candidateProfileForm")
+        .addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const button =
+                    document.getElementById("saveProfileBtn");
+
+                button.disabled = true;
+                button.innerText = "Saving...";
+
+
+                const formData = new FormData();
+
+
+                formData.append(
+                    "full_name",
+                    document
+                        .getElementById("full_name")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "phone",
+                    document
+                        .getElementById("phone")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "location",
+                    document
+                        .getElementById("location")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "skills",
+                    document
+                        .getElementById("skills")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "experience",
+                    document
+                        .getElementById("experience")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "education",
+                    document
+                        .getElementById("education")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "linkedin",
+                    document
+                        .getElementById("linkedin")
+                        .value
+                        .trim()
+                );
+
+                formData.append(
+                    "github",
+                    document
+                        .getElementById("github")
+                        .value
+                        .trim()
+                );
+
+
+                // Resume
+                const resumeInput =
+                    document.getElementById("resume");
+
+                if (
+                    resumeInput &&
+                    resumeInput.files.length > 0
+                ) {
+
+                    formData.append(
+                        "resume",
+                        resumeInput.files[0]
+                    );
+                }
+
+
+                try {
+
+                    const response = await fetch(
+                        "/api/auth/profile/",
+                        {
+                            method: "PATCH",
+
+                            headers: {
+                                "Authorization":
+                                    "Bearer " + token
+                            },
+
+                            body: formData
+                        }
+                    );
+
+
+                    const result =
+                        await response.json();
+
+
+                    console.log(
+                        "Profile update status:",
+                        response.status
+                    );
+
+                    console.log(
+                        "Profile update response:",
+                        result
+                    );
+
+
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            "Unable to update profile.";
+
+
+                        if (result.detail) {
+
+                            errorMessage =
+                                result.detail;
+
+                        } else if (
+                            typeof result === "object"
+                        ) {
+
+                            errorMessage =
+                                Object.entries(result)
+                                    .map(
+                                        ([field, errors]) => {
+
+                                            return (
+                                                field +
+                                                ": " +
+                                                errors.join(", ")
+                                            );
+                                        }
+                                    )
+                                    .join(" | ");
+                        }
+
+
+                        throw new Error(
+                            errorMessage
+                        );
+                    }
+
+
+                    showMessage(
+                        "Profile updated successfully! ✓",
+                        "success"
+                    );
+
+
+                    button.innerText =
+                        "✓ Profile Saved";
+
+
+                    setTimeout(
+                        function () {
+
+                            window.location.href =
+                                "/candidate-profile-view/";
+
+                        },
+                        1200
+                    );
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    showMessage(
+                        error.message,
+                        "error"
+                    );
+
+
+                    button.disabled = false;
+
+                    button.innerText =
+                        "💾 Save Profile";
+                }
+
+            }
+        );
+
+
+    // Message helper
+    function showMessage(message, type) {
+
+        const box =
+            document.getElementById(
+                "profileMessage"
+            );
+
+        box.className =
+            "profile-message " + type;
+
+        box.innerText = message;
+    }
+
+
+    // Load profile on page open
+    loadProfile();
+
+</script>
+
+{% endblock %}

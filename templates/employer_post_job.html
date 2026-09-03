@@ -1,0 +1,638 @@
+{% extends "employer_base.html" %}
+
+{% block title %}Post a Job | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- ============================= -->
+    <!-- PAGE HEADER -->
+    <!-- ============================= -->
+
+    <div class="applications-header">
+
+        <div>
+
+            <span class="applications-badge">
+                💼 POST A JOB
+            </span>
+
+            <h1>Post a New Job</h1>
+
+            <p>
+                Create a job opportunity and find the right candidates.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- POST JOB CARD -->
+    <!-- ============================= -->
+
+    <div class="job-post-wrapper">
+
+        <div class="job-post-card">
+
+            <!-- Back Link -->
+
+            <a href="/employer-dashboard/" class="back-link">
+                ← Back to Dashboard
+            </a>
+
+
+            <div class="job-post-header">
+
+                <div class="job-post-icon">
+                    💼
+                </div>
+
+                <div>
+
+                    <h2>
+                        Job Information
+                    </h2>
+
+                    <p>
+                        Fill in the details below to publish your job.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ============================= -->
+            <!-- MESSAGE -->
+            <!-- ============================= -->
+
+            <div id="jobMessage" class="job-message" style="display: none;"></div>
+
+
+            <!-- ============================= -->
+            <!-- FORM -->
+            <!-- ============================= -->
+
+            <form id="postJobForm">
+
+
+                <!-- JOB TITLE -->
+
+                <div class="form-group">
+
+                    <label for="title">
+                        Job Title
+                    </label>
+
+                    <input type="text" id="title" name="title" placeholder="e.g. Python Developer" required>
+
+                </div>
+
+
+                <!-- COMPANY -->
+
+                <div class="form-group">
+
+                    <label for="company">
+                        Company Name
+                    </label>
+
+                    <input type="text" id="company" name="company" placeholder="e.g. ABC Technologies" required>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Location
+                    </label>
+
+                    <input type="text" id="location" name="location" placeholder="e.g. Indore, Madhya Pradesh" required>
+
+                </div>
+
+
+                <!-- SALARY + JOB TYPE -->
+
+                <div class="job-form-row">
+
+
+                    <!-- SALARY -->
+
+                    <div class="form-group">
+
+                        <label for="salary">
+                            Salary
+                        </label>
+
+                        <input type="number" id="salary" name="salary" placeholder="e.g. 30000" min="0" step="0.01">
+
+                        <small>
+                            Enter monthly salary. Leave empty if not specified.
+                        </small>
+
+                    </div>
+
+
+                    <!-- JOB TYPE -->
+
+                    <div class="form-group">
+
+                        <label for="job_type">
+                            Job Type
+                        </label>
+
+                        <select id="job_type" name="job_type" required>
+
+                            <option value="">
+                                Select job type
+                            </option>
+
+                            <option value="FULL_TIME">
+                                Full-time
+                            </option>
+
+                            <option value="PART_TIME">
+                                Part-time
+                            </option>
+
+                            <option value="INTERNSHIP">
+                                Internship
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Job Description
+                    </label>
+
+                    <textarea id="description" name="description" rows="7"
+                        placeholder="Describe the job role, responsibilities and work..." required></textarea>
+
+                </div>
+
+
+                <!-- REQUIREMENTS -->
+
+                <div class="form-group">
+
+                    <label for="requirements">
+                        Requirements
+                    </label>
+
+                    <textarea id="requirements" name="requirements" rows="7"
+                        placeholder="Enter required skills, qualifications and experience..." required></textarea>
+
+                </div>
+
+
+                <!-- ============================= -->
+                <!-- BUTTONS -->
+                <!-- ============================= -->
+
+                <div class="post-job-actions">
+
+                    <a href="/employer-dashboard/" class="cancel-btn">
+                        Cancel
+                    </a>
+
+                    <button type="submit" id="postJobButton" class="publish-btn">
+                        Publish Job →
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================= -->
+<!-- POST JOB JAVASCRIPT -->
+<!-- ============================= -->
+
+<script>
+
+    const postJobForm =
+        document.getElementById("postJobForm");
+
+    const jobMessage =
+        document.getElementById("jobMessage");
+
+    const postJobButton =
+        document.getElementById("postJobButton");
+
+
+    if (postJobForm) {
+
+        postJobForm.addEventListener(
+            "submit",
+            async function (e) {
+
+                e.preventDefault();
+
+
+                // =============================
+                // GET TOKEN
+                // =============================
+
+                const accessToken =
+                    localStorage.getItem(
+                        "access_token"
+                    );
+
+
+                if (!accessToken) {
+
+                    jobMessage.style.display =
+                        "block";
+
+                    jobMessage.style.color =
+                        "#ef4444";
+
+                    jobMessage.innerHTML =
+                        "✕ Please login as an employer first.";
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "/login/";
+
+                    }, 1000);
+
+                    return;
+                }
+
+
+                // =============================
+                // GET FORM VALUES
+                // =============================
+
+                const title =
+                    document.getElementById("title")
+                        .value.trim();
+
+                const company =
+                    document.getElementById("company")
+                        .value.trim();
+
+                const location =
+                    document.getElementById("location")
+                        .value.trim();
+
+                const salary =
+                    document.getElementById("salary")
+                        .value.trim();
+
+                const jobType =
+                    document.getElementById("job_type")
+                        .value;
+
+                const description =
+                    document.getElementById("description")
+                        .value.trim();
+
+                const requirements =
+                    document.getElementById("requirements")
+                        .value.trim();
+
+
+                // =============================
+                // VALIDATION
+                // =============================
+
+                if (!title ||
+                    !company ||
+                    !location ||
+                    !jobType ||
+                    !description ||
+                    !requirements) {
+
+                    jobMessage.style.display =
+                        "block";
+
+                    jobMessage.style.color =
+                        "#ef4444";
+
+                    jobMessage.innerHTML =
+                        "✕ Please fill all required fields.";
+
+                    return;
+                }
+
+
+                // =============================
+                // DISABLE BUTTON
+                // =============================
+
+                postJobButton.disabled =
+                    true;
+
+                postJobButton.textContent =
+                    "Publishing...";
+
+
+                jobMessage.style.display =
+                    "none";
+
+
+                // =============================
+                // CREATE REQUEST BODY
+                // =============================
+
+                const jobData = {
+
+                    title: title,
+
+                    company: company,
+
+                    location: location,
+
+                    description: description,
+
+                    requirements: requirements,
+
+                    job_type: jobType
+
+                };
+
+
+                // Add salary only if entered
+
+                if (salary) {
+
+                    jobData.salary =
+                        salary;
+
+                }
+
+
+                // =============================
+                // API REQUEST
+                // =============================
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/jobs/",
+                            {
+                                method: "POST",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json",
+
+                                    "Authorization":
+                                        "Bearer " +
+                                        accessToken
+
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        jobData
+                                    )
+
+                            }
+                        );
+
+
+                    // =============================
+                    // READ RESPONSE
+                    // =============================
+
+                    const responseText =
+                        await response.text();
+
+
+                    console.log(
+                        "Post job status:",
+                        response.status
+                    );
+
+
+                    console.log(
+                        "Post job response:",
+                        responseText
+                    );
+
+
+                    let data = {};
+
+
+                    if (responseText) {
+
+                        try {
+
+                            data =
+                                JSON.parse(
+                                    responseText
+                                );
+
+                        } catch (error) {
+
+                            console.log(
+                                "Response is not JSON"
+                            );
+
+                        }
+
+                    }
+
+
+                    // =============================
+                    // SUCCESS
+                    // =============================
+
+                    if (response.ok) {
+
+                        jobMessage.style.display =
+                            "block";
+
+                        jobMessage.style.color =
+                            "#22c55e";
+
+                        jobMessage.innerHTML =
+                            "✓ Job published successfully!";
+
+
+                        postJobButton.textContent =
+                            "✓ Job Published";
+
+
+                        postJobButton.disabled =
+                            true;
+
+
+                        postJobForm.reset();
+
+
+                        // Go to My Jobs / Dashboard
+
+                        setTimeout(() => {
+
+                            window.location.href =
+                                "/employer-dashboard/";
+
+                        }, 1200);
+
+                    }
+
+
+                    // =============================
+                    // ERROR
+                    // =============================
+
+                    else {
+
+                        console.error(
+                            "Post job error:",
+                            data
+                        );
+
+
+                        postJobButton.disabled =
+                            false;
+
+                        postJobButton.textContent =
+                            "Publish Job →";
+
+
+                        jobMessage.style.display =
+                            "block";
+
+                        jobMessage.style.color =
+                            "#ef4444";
+
+
+                        if (data.detail) {
+
+                            jobMessage.innerHTML =
+                                "✕ " +
+                                data.detail;
+
+                        }
+
+                        else if (data.title) {
+
+                            jobMessage.innerHTML =
+                                "✕ Title: " +
+                                data.title[0];
+
+                        }
+
+                        else if (data.company) {
+
+                            jobMessage.innerHTML =
+                                "✕ Company: " +
+                                data.company[0];
+
+                        }
+
+                        else if (data.location) {
+
+                            jobMessage.innerHTML =
+                                "✕ Location: " +
+                                data.location[0];
+
+                        }
+
+                        else if (data.salary) {
+
+                            jobMessage.innerHTML =
+                                "✕ Salary: " +
+                                data.salary[0];
+
+                        }
+
+                        else if (data.description) {
+
+                            jobMessage.innerHTML =
+                                "✕ Description: " +
+                                data.description[0];
+
+                        }
+
+                        else if (data.requirements) {
+
+                            jobMessage.innerHTML =
+                                "✕ Requirements: " +
+                                data.requirements[0];
+
+                        }
+
+                        else if (data.job_type) {
+
+                            jobMessage.innerHTML =
+                                "✕ Job Type: " +
+                                data.job_type[0];
+
+                        }
+
+                        else {
+
+                            jobMessage.innerHTML =
+                                "✕ Unable to publish job. Please try again.";
+
+                        }
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Post job error:",
+                        error
+                    );
+
+
+                    postJobButton.disabled =
+                        false;
+
+                    postJobButton.textContent =
+                        "Publish Job →";
+
+
+                    jobMessage.style.display =
+                        "block";
+
+                    jobMessage.style.color =
+                        "#ef4444";
+
+                    jobMessage.innerHTML =
+                        "✕ Unable to connect to server.";
+
+                }
+
+            }
+        );
+
+    }
+
+</script>
+
+{% endblock %}

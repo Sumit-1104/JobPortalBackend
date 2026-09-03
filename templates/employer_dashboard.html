@@ -1,0 +1,784 @@
+{% extends "employer_base.html" %}
+
+{% block title %}Employer Dashboard | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- Dashboard Header -->
+
+    <div class="applications-header">
+
+        <div>
+
+            <span class="applications-badge">
+                🏢 EMPLOYER DASHBOARD
+            </span>
+
+            <h1>Employer Dashboard</h1>
+
+            <p>
+                Manage your jobs and track candidate applications.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Statistics Cards -->
+
+    <div class="applications-grid">
+
+        <!-- Total Jobs -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    💼
+                </div>
+
+                <div>
+                    <h2>Total Jobs</h2>
+
+                    <p>
+                        Jobs posted by you
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Total</span>
+
+                    <strong id="totalJobs">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Total Applications -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    📄
+                </div>
+
+                <div>
+                    <h2>Applications</h2>
+
+                    <p>
+                        Applications received
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Total</span>
+
+                    <strong id="totalApplications">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Active Jobs -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    🟢
+                </div>
+
+                <div>
+                    <h2>Active Jobs</h2>
+
+                    <p>
+                        Currently available
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Active</span>
+
+                    <strong id="activeJobs">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Pending -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    🟡
+                </div>
+
+                <div>
+                    <h2>Pending</h2>
+
+                    <p>
+                        Applications to review
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Pending</span>
+
+                    <strong id="pendingApplications">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Shortlisted -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    🔵
+                </div>
+
+                <div>
+                    <h2>Shortlisted</h2>
+
+                    <p>
+                        Candidates shortlisted
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Shortlisted</span>
+
+                    <strong id="shortlistedApplications">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Hired -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    🟢
+                </div>
+
+                <div>
+                    <h2>Hired</h2>
+
+                    <p>
+                        Successful candidates
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Hired</span>
+
+                    <strong id="hiredApplications">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Rejected -->
+
+        <div class="application-card">
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    🔴
+                </div>
+
+                <div>
+                    <h2>Rejected</h2>
+
+                    <p>
+                        Applications rejected
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="application-info">
+
+                <div>
+                    <span>Rejected</span>
+
+                    <strong id="rejectedApplications">
+                        0
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recent Applications -->
+
+    <div style="margin-top:45px;">
+
+        <div class="applications-header">
+
+            <div>
+
+                <span class="applications-badge">
+                    📄 RECENT ACTIVITY
+                </span>
+
+                <h2>
+                    Recent Applications
+                </h2>
+
+                <p>
+                    Latest candidates who applied to your jobs.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="recentApplications"
+            class="applications-grid"
+        >
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    ⏳
+                </div>
+
+                <h2>
+                    Loading Applications...
+                </h2>
+
+                <p>
+                    Please wait while we load recent applications.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Quick Actions -->
+
+    <div style="margin-top:45px;">
+
+        <div class="applications-header">
+
+            <div>
+
+                <span class="applications-badge">
+                    ⚡ QUICK ACTIONS
+                </span>
+
+                <h2>
+                    Manage Your Work
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            style="
+                display:flex;
+                gap:15px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <a
+                href="/employer-post-job/"
+                class="publish-btn"
+                style="text-decoration:none;"
+            >
+                ➕ Post a New Job
+            </a>
+
+
+            <a
+                href="/employer-my-jobs/"
+                class="publish-btn"
+                style="text-decoration:none;"
+            >
+                💼 Manage My Jobs
+            </a>
+
+
+            <a
+                href="/employer-applications/"
+                class="publish-btn"
+                style="text-decoration:none;"
+            >
+                📄 View Applications
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadEmployerDashboard();
+});
+
+
+async function loadEmployerDashboard() {
+
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        window.location.href = "/login/";
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/jobs/employer-dashboard/",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        console.log("Employer Dashboard:", data);
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail || "Unable to load dashboard."
+            );
+        }
+
+
+        /* =========================
+           DASHBOARD STATISTICS
+        ========================= */
+
+        document.getElementById("totalJobs").textContent =
+            data.total_jobs ?? 0;
+
+        document.getElementById("activeJobs").textContent =
+            data.active_jobs ?? 0;
+
+        document.getElementById("totalApplications").textContent =
+            data.total_applications ?? 0;
+
+        document.getElementById("pendingApplications").textContent =
+            data.pending_applications ?? 0;
+
+        document.getElementById("shortlistedApplications").textContent =
+            data.shortlisted_applications ?? 0;
+
+        document.getElementById("hiredApplications").textContent =
+            data.hired_applications ?? 0;
+
+        document.getElementById("rejectedApplications").textContent =
+            data.rejected_applications ?? 0;
+
+
+        /* =========================
+           RECENT APPLICATIONS
+        ========================= */
+
+        renderRecentApplications(
+            data.recent_applications || []
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Employer dashboard error:",
+            error
+        );
+
+        document.getElementById(
+            "recentApplications"
+        ).innerHTML = `
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    ⚠️
+                </div>
+
+                <h2>
+                    Unable to Load Dashboard
+                </h2>
+
+                <p>
+                    ${escapeHtml(error.message)}
+                </p>
+
+                <button
+                    type="button"
+                    class="publish-btn"
+                    onclick="loadEmployerDashboard()"
+                    style="
+                        margin-top:20px;
+                        border:none;
+                        cursor:pointer;
+                    "
+                >
+                    🔄 Try Again
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================
+   RECENT APPLICATIONS
+========================= */
+
+function renderRecentApplications(applications) {
+
+    const container =
+        document.getElementById(
+            "recentApplications"
+        );
+
+
+    if (
+        !applications ||
+        applications.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <h2>
+                    No Applications Yet
+                </h2>
+
+                <p>
+                    Candidate applications will appear here.
+                </p>
+
+                <a
+                    href="/employer-post-job/"
+                    class="publish-btn"
+                    style="
+                        display:inline-block;
+                        text-decoration:none;
+                        margin-top:20px;
+                    "
+                >
+                    ➕ Post a Job
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        applications
+            .map(function(application) {
+                return createRecentApplicationCard(
+                    application
+                );
+            })
+            .join("");
+
+}
+
+
+/* =========================
+   APPLICATION CARD
+========================= */
+
+function createRecentApplicationCard(application) {
+
+    const candidate =
+        application.candidate ||
+        "Candidate";
+
+    const email =
+        application.candidate_email ||
+        "Email not provided";
+
+    const jobTitle =
+        application.job_title ||
+        "Job Application";
+
+    const company =
+        application.company ||
+        "";
+
+    const status =
+        application.status ||
+        "APPLIED";
+
+    const appliedDate =
+        application.applied_at
+        ? new Date(
+            application.applied_at
+        ).toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        )
+        : "N/A";
+
+
+    return `
+
+        <div
+            class="employer-application-card"
+            style="
+                width:100%;
+                box-sizing:border-box;
+            "
+        >
+
+            <div class="application-card-header">
+
+                <div class="application-icon">
+                    👤
+                </div>
+
+                <div>
+
+                    <h2>
+                        ${escapeHtml(candidate)}
+                    </h2>
+
+                    <p>
+                        ${escapeHtml(jobTitle)}
+                    </p>
+
+                    ${
+                        company
+                        ? `
+                            <small>
+                                🏢
+                                ${escapeHtml(company)}
+                            </small>
+                        `
+                        : ""
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="application-info"
+                style="margin-top:20px;"
+            >
+
+                <div>
+
+                    <span>
+                        📧 Email
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(email)}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        📅 Applied On
+                    </span>
+
+                    <strong>
+                        ${appliedDate}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        📌 Status
+                    </span>
+
+                    <strong class="application-status">
+                        ${formatDashboardStatus(status)}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    margin-top:22px;
+                    display:flex;
+                    gap:12px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <a
+                    href="/employer-applications/"
+                    class="publish-btn"
+                    style="
+                        text-decoration:none;
+                    "
+                >
+                    📄 View Applications
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================
+   STATUS FORMAT
+========================= */
+
+function formatDashboardStatus(status) {
+
+    if (status === "SHORTLISTED") {
+        return "🔵 Shortlisted";
+    }
+
+    if (status === "HIRED") {
+        return "🟢 Hired";
+    }
+
+    if (status === "REJECTED") {
+        return "🔴 Rejected";
+    }
+
+    return "🟡 Pending";
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+</script> 
+
+{% endblock %}

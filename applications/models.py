@@ -7,9 +7,10 @@ from jobs.models import Job
 class Application(models.Model):
 
     class Status(models.TextChoices):
-        APPLIED = "APPLIED", "Applied"
-        SHORTLISTED = "SHORTLISTED", "Shortlisted"
-        REJECTED = "REJECTED", "Rejected"
+      APPLIED = "APPLIED", "Applied"
+      SHORTLISTED = "SHORTLISTED", "Shortlisted"
+      HIRED = "HIRED", "Hired"
+      REJECTED = "REJECTED", "Rejected"
 
     job = models.ForeignKey(
         Job,

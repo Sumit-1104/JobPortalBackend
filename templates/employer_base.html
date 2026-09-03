@@ -1,0 +1,106 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Employer | JobPortal{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <!-- Employer Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+
+            <a href="/employer-dashboard/" class="logo">
+                Job<span>Portal</span>
+            </a>
+
+            <div class="nav-links">
+
+                <a href="/employer-dashboard/">
+                    Dashboard
+                </a>
+
+                <a href="/employer-post-job/">
+                    Post a Job
+                </a>
+
+                <a href="/employer-my-jobs/">
+                    My Jobs
+                </a>
+
+                <a href="/employer-applications/">
+                    Applications
+                </a>
+
+                <a href="/employer-profile/">
+                    Profile
+                </a>
+
+                <button
+                    id="employerLogout"
+                    class="nav-btn"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+                <button
+                    id="themeToggle"
+                    class="theme-toggle"
+                    aria-label="Toggle theme"
+                >
+                    🌙
+                </button>
+
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+                <h3>JobPortal</h3>
+
+                <p>
+                    Manage your jobs and connect with talented candidates.
+                </p>
+            </div>
+
+            <div>
+                <p>
+                    © 2026 JobPortal. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="{% static 'js/app.js' %}"></script>
+
+</body>
+
+</html>

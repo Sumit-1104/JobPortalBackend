@@ -1,0 +1,907 @@
+{% extends "employer_base.html" %}
+
+{% block title %}Applications | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- Header -->
+    <div class="applications-header">
+
+        <div>
+            <span class="applications-badge">
+                📄 EMPLOYER APPLICATIONS
+            </span>
+
+            <h1>Applications Received</h1>
+
+            <p>
+                Review candidates and manage their application status.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Filter Section -->
+    <div style="
+            margin-bottom:30px;
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            align-items:center;
+        ">
+
+        <select id="statusFilter" style="
+                padding:12px 16px;
+                border-radius:10px;
+                border:1px solid #d1d5db;
+                font-size:14px;
+                min-width:180px;
+            ">
+
+            <option value="ALL">
+                All Applications
+            </option>
+
+            <option value="APPLIED">
+                Pending
+            </option>
+
+            <option value="SHORTLISTED">
+                Shortlisted
+            </option>
+
+            <option value="HIRED">
+                Hired
+            </option>
+
+            <option value="REJECTED">
+                Rejected
+            </option>
+
+        </select>
+
+
+        <button type="button" id="refreshApplications" class="publish-btn">
+            🔄 Refresh
+        </button>
+
+    </div>
+
+
+    <!-- Applications -->
+    <div id="employer-applications-container" class="applications-grid">
+
+        <div class="application-message">
+
+            <div class="empty-icon">
+                ⏳
+            </div>
+
+            <h2>
+                Loading Applications...
+            </h2>
+
+            <p>
+                Please wait while we load candidate applications.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+    let allApplications = [];
+
+
+    /*
+        Load Applications
+    */
+
+    async function loadEmployerApplications() {
+
+        const container =
+            document.getElementById(
+                "employer-applications-container"
+            );
+
+        const accessToken =
+            localStorage.getItem("access_token");
+
+
+        if (!accessToken) {
+
+            container.innerHTML = `
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    🔒
+                </div>
+
+                <h2>
+                    Login Required
+                </h2>
+
+                <p>
+                    Please login as an employer to view applications.
+                </p>
+
+                <a
+                    href="/login/"
+                    class="publish-btn"
+                    style="
+                        display:inline-block;
+                        text-decoration:none;
+                        margin-top:20px;
+                    "
+                >
+                    Login →
+                </a>
+
+            </div>
+
+        `;
+
+            return;
+        }
+
+
+        container.innerHTML = `
+
+        <div class="application-message">
+
+            <div class="empty-icon">
+                ⏳
+            </div>
+
+            <h2>
+                Loading Applications...
+            </h2>
+
+            <p>
+                Please wait.
+            </p>
+
+        </div>
+
+    `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/applications/employer/",
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                "Bearer " + accessToken
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Employer applications:",
+                data
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Unable to load applications."
+                );
+
+            }
+
+
+            allApplications =
+                Array.isArray(data)
+                    ? data
+                    : data.results || [];
+
+
+            renderApplications();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Employer applications error:",
+                error
+            );
+
+
+            container.innerHTML = `
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    ⚠️
+                </div>
+
+                <h2>
+                    Unable to Load Applications
+                </h2>
+
+                <p>
+                    ${error.message ||
+                "Something went wrong. Please try again."}
+                </p>
+
+                <button
+                    type="button"
+                    class="publish-btn"
+                    onclick="loadEmployerApplications()"
+                    style="
+                        margin-top:20px;
+                        border:none;
+                        cursor:pointer;
+                    "
+                >
+                    🔄 Try Again
+                </button>
+
+            </div>
+
+        `;
+
+        }
+
+    }
+
+
+    /*
+        Render Applications
+    */
+
+    function renderApplications() {
+
+        const container =
+            document.getElementById(
+                "employer-applications-container"
+            );
+
+
+        const selectedStatus =
+            document.getElementById(
+                "statusFilter"
+            ).value;
+
+
+        let applications =
+            [...allApplications];
+
+
+        if (selectedStatus !== "ALL") {
+
+            applications =
+                applications.filter(
+                    application =>
+                        application.status === selectedStatus
+                );
+
+        }
+
+
+        if (applications.length === 0) {
+
+            container.innerHTML = `
+
+            <div class="application-message">
+
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <h2>
+                    No Applications Found
+                </h2>
+
+                <p>
+                    ${selectedStatus === "ALL"
+                    ? "No candidates have applied to your jobs yet."
+                    : "No applications match the selected status."
+                }
+                </p>
+
+            </div>
+
+        `;
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+            applications
+                .map(
+                    application =>
+                        createApplicationCard(
+                            application
+                        )
+                )
+                .join("");
+
+    }
+
+
+    /*
+        Application Card
+    */
+
+    function createApplicationCard(application) {
+
+        const candidateName =
+            application.candidate_name ||
+            application.candidate ||
+            "Candidate";
+
+
+        const jobTitle =
+            application.job_title ||
+            application.job?.title ||
+            "Job Application";
+
+
+        const company =
+            application.company ||
+            application.job?.company ||
+            "";
+
+
+        const status =
+            application.status ||
+            "APPLIED";
+
+
+        const appliedDate =
+            application.applied_at
+                ? new Date(
+                    application.applied_at
+                ).toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    }
+                )
+                : "N/A";
+
+
+        const resume =
+            application.resume || null;
+
+
+        const coverLetter =
+            application.cover_letter ||
+            "No cover letter provided.";
+
+
+        return `
+
+        <div
+            class="employer-application-card"
+            data-status="${status}"
+            style="
+                width:100%;
+                box-sizing:border-box;
+            "
+        >
+
+            <!-- Candidate Header -->
+
+            <div
+                class="application-card-header"
+            >
+
+                <div class="application-icon">
+                    👤
+                </div>
+
+                <div>
+
+                    <h2>
+                        ${escapeHtml(candidateName)}
+                    </h2>
+
+                    <p>
+                        ${escapeHtml(jobTitle)}
+                    </p>
+
+                    ${company
+                ? `
+                            <small>
+                                🏢 ${escapeHtml(company)}
+                            </small>
+                        `
+                : ""
+            }
+
+                </div>
+
+            </div>
+
+<!-- Application Info -->
+
+<div 
+    class="application-info"
+    style="margin-top:20px;"
+>
+
+    <div>
+
+        <span>
+            👤 Candidate
+        </span>
+
+        <strong>
+            ${escapeHtml(candidateName)}
+        </strong>
+
+    </div>
+
+
+    <div>
+
+        <span>
+            📧 Email
+        </span>
+
+        <strong>
+            ${escapeHtml(
+                application.candidate_email || "Email not provided"
+            )}
+        </strong>
+
+    </div>
+
+
+    <div>
+
+        <span>
+            📅 Applied On
+        </span>
+
+        <strong>
+            ${appliedDate}
+        </strong>
+
+    </div>
+
+
+    <div>
+
+        <span>
+            📌 Current Status
+        </span>
+
+        <strong class="application-status">
+            ${formatStatus(status)}
+        </strong>
+
+    </div>
+
+</div>
+
+
+            <!-- Cover Letter -->
+
+            <div
+                class="application-details"
+                style="margin-top:25px;"
+            >
+
+                <h3>
+                    📝 Cover Letter
+                </h3>
+
+                <p
+                    style="
+                        white-space:pre-line;
+                        line-height:1.7;
+                    "
+                >
+                    ${escapeHtml(coverLetter)}
+                </p>
+
+            </div>
+
+
+            <!-- Status Management -->
+
+            <div
+                style="
+                    margin-top:25px;
+                    padding:20px;
+                    border-radius:14px;
+                    background:rgba(99,102,241,0.06);
+                "
+            >
+
+                <h3>
+                    🔄 Manage Application
+                </h3>
+
+
+                <div
+                    style="
+                        display:flex;
+                        gap:12px;
+                        flex-wrap:wrap;
+                        align-items:center;
+                        margin-top:15px;
+                    "
+                >
+
+                    <select
+                        id="status-${application.id}"
+                        style="
+                            padding:11px 14px;
+                            border-radius:10px;
+                            border:1px solid #d1d5db;
+                            min-width:170px;
+                            font-size:14px;
+                        "
+                    >
+
+
+                        <option 
+                                value="APPLIED"
+                                ${status === "APPLIED" ? "selected" : ""}
+                        >
+                            🟡 Pending
+                        </option>
+
+                        <option
+                            value="SHORTLISTED"
+                            ${status === "SHORTLISTED" ? "selected" : ""}
+                        >
+                            🔵 Shortlisted
+                        </option>
+
+                        <option
+                            value="HIRED"
+                            ${status === "HIRED" ? "selected" : ""}
+                        >
+                            🟢 Hired
+                        </option>
+
+                        <option
+                            value="REJECTED"
+                            ${status === "REJECTED" ? "selected" : ""}
+                        >
+                            🔴 Rejected
+                        </option>
+
+                    </select>
+
+
+                    <button
+                        type="button"
+                        class="publish-btn"
+                        onclick="updateApplicationStatus(${application.id})"
+                        id="update-status-${application.id}"
+                        style="
+                            border:none;
+                            cursor:pointer;
+                        "
+                    >
+                        💾 Update Status
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Resume -->
+
+            <div
+                class="application-footer"
+                style="margin-top:25px;"
+            >
+
+            <a
+            href="/employer-candidate/${application.candidate}/"
+            class="publish-btn"
+            style="
+                text-decoration:none;
+            "
+        >
+            👤 View Candidate
+        </a>
+        
+                ${resume
+                ? `
+                        <a
+                            href="${resume}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="publish-btn"
+                            style="
+                                text-decoration:none;
+                            "
+                        >
+                            📄 View Resume
+                        </a>
+                    `
+                : `
+                        <span>
+                            📄 Resume not available
+                        </span>
+                    `
+            }
+
+            </div>
+
+        </div>
+
+    `;
+
+    }
+
+
+    /*
+        Update Application Status
+    */
+
+    async function updateApplicationStatus(
+        applicationId
+    ) {
+
+        const token =
+            localStorage.getItem(
+                "access_token"
+            );
+
+
+        if (!token) {
+
+            alert(
+                "Your session has expired. Please login again."
+            );
+
+            window.location.href =
+                "/login/";
+
+            return;
+
+        }
+
+
+        const select =
+            document.getElementById(
+                `status-${applicationId}`
+            );
+
+
+        const button =
+            document.getElementById(
+                `update-status-${applicationId}`
+            );
+
+
+        const newStatus =
+            select.value;
+
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Updating...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/applications/${applicationId}/status/`,
+                    {
+                        method: "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                "Bearer " + token
+                        },
+
+                        body:
+                            JSON.stringify({
+                                status: newStatus
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Status update response:",
+                data
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Unable to update application status."
+                );
+
+            }
+
+
+            /*
+                Update local data
+            */
+
+            const application =
+                allApplications.find(
+                    item =>
+                        item.id === applicationId
+                );
+
+
+            if (application) {
+
+                application.status =
+                    data.status ||
+                    newStatus;
+
+            }
+
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "✓ Status Updated";
+
+
+            setTimeout(
+                function () {
+
+                    renderApplications();
+
+                },
+                800
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Status update error:",
+                error
+            );
+
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "💾 Update Status";
+
+
+            alert(
+                error.message ||
+                "Unable to update status."
+            );
+
+        }
+
+    }
+
+
+    /*
+        Status Formatting
+    */
+
+    function formatStatus(status) {
+
+        if (status === "SHORTLISTED") {
+            return "🔵 Shortlisted";
+        }
+
+        if (status === "HIRED") {
+            return "🟢 Hired";
+        }
+
+        if (status === "REJECTED") {
+            return "🔴 Rejected";
+        }
+
+        return "🟡 Pending";
+
+    }
+
+
+    /*
+        Escape HTML
+    */
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /*
+        Filter
+    */
+
+    document
+        .getElementById("statusFilter")
+        .addEventListener(
+            "change",
+            renderApplications
+        );
+
+
+    /*
+        Refresh
+    */
+
+    document
+        .getElementById("refreshApplications")
+        .addEventListener(
+            "click",
+            loadEmployerApplications
+        );
+
+
+    /*
+        Initial Load
+    */
+
+    loadEmployerApplications();
+
+</script>
+
+{% endblock %}

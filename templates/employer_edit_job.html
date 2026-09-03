@@ -1,0 +1,821 @@
+{% extends "employer_base.html" %}
+
+{% block title %}Edit Job | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <!-- Page Header -->
+    <div class="applications-header">
+
+        <div>
+            <span class="applications-badge">
+                ✏️ EDIT JOB
+            </span>
+
+            <h1>Edit Job</h1>
+
+            <p>
+                Update the details of your posted job.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Edit Job Form -->
+    <div class="job-post-wrapper">
+
+        <div class="job-post-card">
+
+            <a
+                href="/employer-my-jobs/"
+                class="back-link"
+            >
+                ← Back to My Jobs
+            </a>
+
+
+            <div class="job-post-header">
+
+                <div class="job-post-icon">
+                    ✏️
+                </div>
+
+                <div>
+
+                    <h2>
+                        Update Job Information
+                    </h2>
+
+                    <p>
+                        Modify the details below and save your changes.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Message -->
+            <div
+                id="editJobMessage"
+                class="job-message"
+                style="display:none;"
+            ></div>
+
+
+            <!-- Loading -->
+            <div
+                id="editJobLoading"
+                class="application-message"
+            >
+
+                <div class="empty-icon">
+                    ⏳
+                </div>
+
+                <h2>
+                    Loading Job...
+                </h2>
+
+                <p>
+                    Please wait while we load the job details.
+                </p>
+
+            </div>
+
+
+            <!-- Form -->
+            <form
+                id="editJobForm"
+                style="display:none;"
+            >
+
+                <div class="form-group">
+
+                    <label for="editTitle">
+                        Job Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editTitle"
+                        name="title"
+                        placeholder="e.g. Python Developer"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="editCompany">
+                        Company Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editCompany"
+                        name="company"
+                        placeholder="e.g. ABC Technologies"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="editLocation">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editLocation"
+                        name="location"
+                        placeholder="e.g. Indore, Madhya Pradesh"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="job-form-row">
+
+                    <div class="form-group">
+
+                        <label for="editSalary">
+                            Salary
+                        </label>
+
+                        <input
+                            type="number"
+                            id="editSalary"
+                            name="salary"
+                            placeholder="e.g. 30000"
+                            min="0"
+                            step="0.01"
+                        >
+
+                        <small>
+                            Enter monthly salary. Leave empty if not specified.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="editJobType">
+                            Job Type
+                        </label>
+
+                        <select
+                            id="editJobType"
+                            name="job_type"
+                            required
+                        >
+
+                            <option value="">
+                                Select job type
+                            </option>
+
+                            <option value="FULL_TIME">
+                                Full-time
+                            </option>
+
+                            <option value="PART_TIME">
+                                Part-time
+                            </option>
+
+                            <option value="INTERNSHIP">
+                                Internship
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="editDescription">
+                        Job Description
+                    </label>
+
+                    <textarea
+                        id="editDescription"
+                        name="description"
+                        rows="7"
+                        placeholder="Describe the job role, responsibilities and work..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="editRequirements">
+                        Requirements
+                    </label>
+
+                    <textarea
+                        id="editRequirements"
+                        name="requirements"
+                        rows="7"
+                        placeholder="Enter required skills, qualifications and experience..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="post-job-actions">
+
+                    <a
+                        href="/employer-my-jobs/"
+                        class="cancel-btn"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        id="updateJobButton"
+                        class="publish-btn"
+                    >
+                        Save Changes →
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const token =
+        localStorage.getItem("access_token");
+
+    const loading =
+        document.getElementById("editJobLoading");
+
+    const form =
+        document.getElementById("editJobForm");
+
+    const message =
+        document.getElementById("editJobMessage");
+
+    const updateButton =
+        document.getElementById("updateJobButton");
+
+
+    /*
+        Get Job ID from URL
+
+        Example:
+        /employer-edit-job/5/
+
+        Job ID = 5
+    */
+
+    const pathParts =
+        window.location.pathname
+            .split("/")
+            .filter(Boolean);
+
+    const jobId =
+        pathParts[pathParts.length - 1];
+
+
+    if (!token) {
+
+        loading.style.display = "none";
+
+        message.style.display = "block";
+
+        message.style.color = "#ef4444";
+
+        message.innerHTML =
+            "✕ Please login as an employer first.";
+
+        setTimeout(function () {
+
+            window.location.href =
+                "/login/";
+
+        }, 1000);
+
+        return;
+    }
+
+
+    if (!jobId) {
+
+        loading.style.display = "none";
+
+        message.style.display = "block";
+
+        message.style.color = "#ef4444";
+
+        message.innerHTML =
+            "✕ Invalid job ID.";
+
+        return;
+    }
+
+
+    /*
+        Load existing job
+    */
+
+    fetch(
+        `/api/jobs/${jobId}/`,
+        {
+            method: "GET",
+
+            headers: {
+                "Authorization":
+                    "Bearer " + token,
+
+                "Content-Type":
+                    "application/json"
+            }
+        }
+    )
+
+    .then(function (response) {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load job."
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(function (job) {
+
+        console.log(
+            "Job loaded:",
+            job
+        );
+
+
+        /*
+            Fill form
+        */
+
+        document.getElementById(
+            "editTitle"
+        ).value =
+            job.title || "";
+
+
+        document.getElementById(
+            "editCompany"
+        ).value =
+            job.company || "";
+
+
+        document.getElementById(
+            "editLocation"
+        ).value =
+            job.location || "";
+
+
+        document.getElementById(
+            "editSalary"
+        ).value =
+            job.salary || "";
+
+
+        document.getElementById(
+            "editJobType"
+        ).value =
+            job.job_type || "";
+
+
+        document.getElementById(
+            "editDescription"
+        ).value =
+            job.description || "";
+
+
+        document.getElementById(
+            "editRequirements"
+        ).value =
+            job.requirements || "";
+
+
+        /*
+            Show form
+        */
+
+        loading.style.display =
+            "none";
+
+        form.style.display =
+            "block";
+
+    })
+
+    .catch(function (error) {
+
+        console.error(
+            "Load job error:",
+            error
+        );
+
+        loading.style.display =
+            "none";
+
+        message.style.display =
+            "block";
+
+        message.style.color =
+            "#ef4444";
+
+        message.innerHTML =
+            "✕ Unable to load job details.";
+
+    });
+
+
+    /*
+        Update Job
+    */
+
+    form.addEventListener(
+        "submit",
+        function (e) {
+
+            e.preventDefault();
+
+
+            const title =
+                document.getElementById(
+                    "editTitle"
+                ).value.trim();
+
+
+            const company =
+                document.getElementById(
+                    "editCompany"
+                ).value.trim();
+
+
+            const location =
+                document.getElementById(
+                    "editLocation"
+                ).value.trim();
+
+
+            const salary =
+                document.getElementById(
+                    "editSalary"
+                ).value.trim();
+
+
+            const jobType =
+                document.getElementById(
+                    "editJobType"
+                ).value;
+
+
+            const description =
+                document.getElementById(
+                    "editDescription"
+                ).value.trim();
+
+
+            const requirements =
+                document.getElementById(
+                    "editRequirements"
+                ).value.trim();
+
+
+            /*
+                Validation
+            */
+
+            if (
+                !title ||
+                !company ||
+                !location ||
+                !jobType ||
+                !description ||
+                !requirements
+            ) {
+
+                message.style.display =
+                    "block";
+
+                message.style.color =
+                    "#ef4444";
+
+                message.innerHTML =
+                    "✕ Please fill all required fields.";
+
+                return;
+
+            }
+
+
+            /*
+                Disable button
+            */
+
+            updateButton.disabled =
+                true;
+
+            updateButton.textContent =
+                "Updating...";
+
+            message.style.display =
+                "none";
+
+
+            /*
+                Data
+            */
+
+            const jobData = {
+
+                title: title,
+
+                company: company,
+
+                location: location,
+
+                description: description,
+
+                requirements: requirements,
+
+                job_type: jobType
+
+            };
+
+
+            if (salary) {
+
+                jobData.salary =
+                    salary;
+
+            } else {
+
+                jobData.salary =
+                    null;
+
+            }
+
+
+            /*
+                PATCH request
+            */
+
+            fetch(
+                `/api/jobs/${jobId}/`,
+                {
+                    method: "PATCH",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + token
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            jobData
+                        )
+
+                }
+            )
+
+            .then(function (response) {
+
+                return response
+                    .text()
+                    .then(function (text) {
+
+                        let data = {};
+
+                        if (text) {
+
+                            try {
+
+                                data =
+                                    JSON.parse(
+                                        text
+                                    );
+
+                            } catch (error) {
+
+                                console.log(
+                                    "Response is not JSON"
+                                );
+
+                            }
+
+                        }
+
+
+                        return {
+                            ok:
+                                response.ok,
+
+                            status:
+                                response.status,
+
+                            data:
+                                data
+                        };
+
+                    });
+
+            })
+
+            .then(function (result) {
+
+                console.log(
+                    "Update status:",
+                    result.status
+                );
+
+                console.log(
+                    "Update response:",
+                    result.data
+                );
+
+
+                if (result.ok) {
+
+                    message.style.display =
+                        "block";
+
+                    message.style.color =
+                        "#22c55e";
+
+                    message.innerHTML =
+                        "✓ Job updated successfully!";
+
+
+                    updateButton.textContent =
+                        "✓ Updated";
+
+
+                    setTimeout(function () {
+
+                        window.location.href =
+                            "/employer-my-jobs/";
+
+                    }, 1000);
+
+
+                } else {
+
+                    updateButton.disabled =
+                        false;
+
+                    updateButton.textContent =
+                        "Save Changes →";
+
+
+                    message.style.display =
+                        "block";
+
+                    message.style.color =
+                        "#ef4444";
+
+
+                    if (result.data.detail) {
+
+                        message.innerHTML =
+                            "✕ " +
+                            result.data.detail;
+
+                    } else if (
+                        result.data.title
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Title: " +
+                            result.data.title[0];
+
+                    } else if (
+                        result.data.company
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Company: " +
+                            result.data.company[0];
+
+                    } else if (
+                        result.data.location
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Location: " +
+                            result.data.location[0];
+
+                    } else if (
+                        result.data.salary
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Salary: " +
+                            result.data.salary[0];
+
+                    } else if (
+                        result.data.description
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Description: " +
+                            result.data.description[0];
+
+                    } else if (
+                        result.data.requirements
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Requirements: " +
+                            result.data.requirements[0];
+
+                    } else if (
+                        result.data.job_type
+                    ) {
+
+                        message.innerHTML =
+                            "✕ Job Type: " +
+                            result.data.job_type[0];
+
+                    } else {
+
+                        message.innerHTML =
+                            "✕ Unable to update job. Please try again.";
+
+                    }
+
+                }
+
+            })
+
+            .catch(function (error) {
+
+                console.error(
+                    "Update job error:",
+                    error
+                );
+
+                updateButton.disabled =
+                    false;
+
+                updateButton.textContent =
+                    "Save Changes →";
+
+
+                message.style.display =
+                    "block";
+
+                message.style.color =
+                    "#ef4444";
+
+                message.innerHTML =
+                    "✕ Unable to connect to server.";
+
+            });
+
+        }
+    );
+
+});
+
+</script>
+
+{% endblock %}

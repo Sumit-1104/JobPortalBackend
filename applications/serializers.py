@@ -4,8 +4,14 @@ from .models import Application
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
+
     candidate_name = serializers.CharField(
         source="candidate.username",
+        read_only=True
+    )
+
+    candidate_email = serializers.EmailField(
+        source="candidate.email",
         read_only=True
     )
 
@@ -16,12 +22,14 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
+
         fields = [
             "id",
             "job",
             "job_title",
             "candidate",
             "candidate_name",
+            "candidate_email",
             "resume",
             "cover_letter",
             "status",
@@ -32,6 +40,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "id",
             "candidate",
             "candidate_name",
+            "candidate_email",
             "job_title",
             "status",
             "applied_at",

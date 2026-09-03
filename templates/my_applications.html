@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}My Applications | JobPortal{% endblock %}
+
+{% block content %}
+
+<section class="applications-page">
+
+    <div class="applications-header">
+
+        <div>
+            <span class="applications-badge">
+                📄 MY APPLICATIONS
+            </span>
+
+            <h1>My Applications</h1>
+
+            <p>
+                Track all the jobs you have applied for.
+            </p>
+        </div>
+
+        <div class="applications-count">
+            <strong id="applicationsCount">0</strong>
+            <span>Applications</span>
+        </div>
+
+    </div>
+
+
+    <div id="applications-container" class="applications-grid">
+
+        <div class="applications-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading your applications...</p>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
