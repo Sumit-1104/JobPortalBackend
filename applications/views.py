@@ -129,42 +129,26 @@ class EmployerDashboardView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
         if request.user.role != "EMPLOYER":
             raise PermissionDenied(
                 "Only employers can access the dashboard."
             )
 
-        # Employer ke jobs
-        employer_jobs = Job.objects.filter(
-            employer=request.user
-        )
-
-        # Total jobs
+        employer_jobs = Job.objects.filter(employer=request.user)
         total_jobs = employer_jobs.count()
-
-        # Abhi Job model mein active/inactive field nahi hai,
-        # isliye currently saare posted jobs active maan rahe hain.
         active_jobs = total_jobs
 
-        # Employer ke applications
         employer_applications = Application.objects.filter(
             job__employer=request.user
         ).order_by("-applied_at")
 
         total_applications = employer_applications.count()
-
-        # Recent 5 applications
         recent_applications = employer_applications[:5]
-
-        serializer = ApplicationSerializer(
-            recent_applications,
-            many=True
-        )
+        serializer = ApplicationSerializer(recent_applications, many=True)
 
         return Response({
             "total_jobs": total_jobs,
             "total_applications": total_applications,
             "active_jobs": active_jobs,
-            "recent_applications": serializer.data
+            "recent_applications": serializer.data,
         })
